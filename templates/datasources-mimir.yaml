@@ -1,0 +1,20 @@
+{{- if and .Values.mimir.enabled .Values.mimir.datasources.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-mimir-datasource
+  namespace: {{ .Release.Namespace }}
+  labels:
+    release: {{ .Release.Name }}
+    grafana_datasource: "1"
+data:
+  tempo-datasource.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: Mimir
+      type: prometheus
+      url: http://{{ .Release.Name }}-mimir-nginx/prometheus
+      version: 1
+      isDefault: false
+      uid: mimir
+{{- end }}

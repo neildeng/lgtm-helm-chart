@@ -1,0 +1,34 @@
+minio:
+  enabled: true
+  minio:
+    enabled: true
+    mode: standalone
+    rootUser: admin
+    rootPassword: changeme
+    buckets:
+      - name: loki
+        policy: none
+        purge: false
+      - name: grafana
+        policy: none
+        purge: false
+      - name: tempo
+        policy: none
+        purge: false
+      - name: mimir-tsdb
+        policy: none
+        purge: false
+      - name: mimir-ruler
+        policy: none
+        purge: false
+      - name: phlare
+        policy: none
+        purge: false
+    persistence:
+      size: 5Gi
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+    # Changed the mc config path to '/tmp' from '/etc' as '/etc' is only writable by root and OpenShift will not permit this.
+    configPathmc: "/tmp/minio/mc/"

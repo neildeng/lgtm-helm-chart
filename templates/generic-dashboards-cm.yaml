@@ -1,0 +1,21 @@
+{{- if .Values.kubeprometheusstack.grafana.dashboardsConfigMaps }}
+{{- $files := .Files.Glob "dashboards/*/*.json" }}
+{{- range $provider, $dashboards := .Values.kubeprometheusstack.grafana.dashboardsConfigMaps }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $dashboards }}
+  labels:
+    grafana_dashboard: "2"
+data:
+{{- if $files }}
+{{- range $path, $fileContents := $files }}
+{{- if (regexMatch (printf "dashboards/%s" $provider) (printf "%s" (dir $path)) ) }}
+  {{- $dashboardName := regexReplaceAll "(^.*/)(.*)\\.json$" $path "${2}" }}
+  {{ $dashboardName }}.json: {{ $.Files.Get $path | toJson }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,102 @@
+kubeprometheusstack:
+  prometheus:
+    prometheusSpec:
+      enableRemoteWriteReceiver: true
+      remoteWriteDashboards: true
+      remoteWrite:
+        - url: http://{{ .Release.Name }}-mimir-nginx/api/v1/push
+
+loki-stack:
+  loki:
+    config:
+      schema_config:
+        configs:
+          - from: 2023-02-01
+            store: boltdb-shipper
+            object_store: s3
+            schema: v11
+            index:
+              prefix: index_
+              period: 24h
+      compactor:
+        working_directory: /data/loki/boltdb-shipper-compactor
+        shared_store: s3
+      storage_config:
+        boltdb_shipper:
+          active_index_directory: /data/loki/boltdb-shipper-active
+          cache_location: /data/loki/boltdb-shipper-cache
+          cache_ttl: 24h
+          shared_store: s3
+        filesystem: null
+        aws:
+          s3: s3://minio.homelab.test:9900
+          insecure: true
+          access_key_id: admin
+          secret_access_key: changeme
+          bucketnames: loki
+          region: null
+          sse_encryption: false
+          s3forcepathstyle: true
+
+tempo:
+  tempo:
+    storage:
+      trace:
+        backend: s3
+        s3:
+          endpoint: minio.homelab.test:9900
+          insecure: true
+          access_key: admin
+          secret_key: changeme
+          bucket: tempo
+
+mimir:
+  mimir:
+    structuredConfig:
+      common:
+        storage:
+          backend: s3
+          s3:
+            endpoint: minio.homelab.test:9900
+            insecure: true
+            access_key_id: admin
+            secret_access_key: changeme
+            bucket_name: mimir-tsdb
+      limits:
+        max_label_names_per_series: 60
+      alertmanager_storage:
+        backend: s3
+        s3:
+          endpoint: minio.homelab.test:9900
+          insecure: true
+          access_key_id: admin
+          secret_access_key: changeme
+          bucket_name: mimir-ruler
+      blocks_storage:
+        backend: s3
+        s3:
+          endpoint: minio.homelab.test:9900
+          insecure: true
+          access_key_id: admin
+          secret_access_key: changeme
+          bucket_name: mimir-tsdb
+      ruler_storage:
+        backend: s3
+        s3:
+          endpoint: minio.homelab.test:9900
+          insecure: true
+          access_key_id: admin
+          secret_access_key: changeme
+          bucket_name: mimir-ruler
+
+phlare:
+  phlare:
+    structuredConfig:
+      storage:
+        backend: s3
+        s3:
+          endpoint: minio.homelab.test:9900
+          insecure: true
+          access_key_id: admin
+          secret_access_key: changeme
+          bucket_name: phlare

@@ -1,0 +1,9 @@
+tempo:
+  enabled: true
+  tempo:
+    reportingEnabled: false
+    extraArgs:
+      "distributor.log-received-traces": true
+
+  serviceMonitor:
+    enabled: true

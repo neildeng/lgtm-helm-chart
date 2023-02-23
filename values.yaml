@@ -1,0 +1,104 @@
+kubeprometheusstack:
+  enabled: true
+
+  alertmanager:
+    enabled: true
+
+  prometheus:
+    enabled: true
+
+  grafana:
+    enabled: true
+    env:
+      GF_FEATURE_TOGGLES_ENABLE: flameGraph
+      GF_DIAGNOSTICS_PROFILING_ENABLED: true
+      GF_DIAGNOSTICS_PROFILING_ADDR: 0.0.0.0
+      GF_DIAGNOSTICS_PROFILING_PORT: 6060
+      JAEGER_AGENT_PORT: 6831
+    podAnnotations:
+      phlare.grafana.com/scrape: "true"
+      phlare.grafana.com/port: "6060"
+    defaultDashboardsTimezone: 'Asia/Taipei'
+    grafana.ini:
+      paths:
+        data: /var/lib/grafana/
+        logs: /var/log/grafana
+        plugins: /var/lib/grafana/plugins
+        provisioning: /etc/grafana/provisioning
+      analytics:
+        check_for_updates: false
+    sidecar:
+      datasources:
+        enabled: true
+      dashboards:
+        enabled: true
+        folder: /var/lib/grafana/dashboards
+        defaultFolderName: null
+        provider:
+          # name of the provider, should be unique
+          name: default
+          # orgid as configured in grafana
+          orgid: 1
+          # folder in which the dashboards should be imported in grafana
+          folder: ''
+          # type of the provider
+          type: file
+          # disableDelete to activate a import-only behaviour
+          disableDelete: false
+          # allow updating provisioned dashboards from the UI
+          allowUiUpdates: false
+          # allow Grafana to replicate dashboard structure from filesystem
+          foldersFromFilesStructure: true
+
+loki-stack:
+  enabled: false
+
+  loki:
+    isDefault: false
+    datasource:
+      jsonData: |-
+        derivedFields:
+          - name: TraceID
+            datasourceName: Tempo
+            datasourceUid: tempo
+            matcherRegex: "traceID=(\\w+)"
+            url: "$${__value.raw}"
+
+  promtail:
+    config:
+      logLevel: info
+      serverPort: 3101
+      clients:
+        - url: http://{{ .Release.Name }}-loki:3100/loki/api/v1/push
+
+tempo:
+  enabled: false
+  datasources:
+    enabled: true
+
+phlare:
+  enabled: false
+  datasources:
+    enabled: true
+
+mimir:
+  enabled: false
+  datasources:
+    enabled: true
+  alertmanager:
+    persistentVolume:
+      enabled: false
+  compactor:
+    persistentVolume:
+      enabled: false
+  ingester:
+    persistentVolume:
+      enabled: false
+  store_gateway:
+    persistentVolume:
+      enabled: false
+  minio:
+    enabled: false
+
+minio:
+  enabled: false

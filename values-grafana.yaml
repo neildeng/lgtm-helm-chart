@@ -1,0 +1,44 @@
+kubeprometheusstack:
+  grafana:
+    adminPassword: 'changeme'
+    grafana.ini:
+      dashboards:
+        default_home_dashboard_path: /var/lib/grafana/dashboards/custom/custom-default.json
+    dashboardProviders:
+      dashboardroviders.yaml:
+        apiVersion: 1
+        providers:
+          - name: 'custom'
+            folder: 'custom'
+            allowUiUpdates: true
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/custom
+          - name: 'applications'
+            folder: 'applications'
+            allowUiUpdates: true
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/applications
+          - name: 'infra'
+            folder: 'infra'
+            allowUiUpdates: true
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/infra
+          - name: 'performance'
+            folder: 'performance'
+            allowUiUpdates: true
+            disableDeletion: false
+            editable: true
+            options:
+              path: /var/lib/grafana/dashboards/performance
+    dashboardsConfigMaps:
+      custom: "custom-dashboards"
+      infra: "infra-dashboards"
+      applications: "applications-dashboards"
+      performance: "performance-dashboards"
+

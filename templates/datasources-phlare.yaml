@@ -1,0 +1,21 @@
+{{- if and .Values.phlare.enabled .Values.phlare.datasources.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-phlare-datasource
+  namespace: {{ .Release.Namespace }}
+  labels:
+    release: {{ .Release.Name }}
+    grafana_datasource: "1"
+data:
+  phlare-datasource.yaml: |-
+    apiVersion: 1
+    datasources:
+    - name: Phlare
+      type: phlare
+      access: proxy
+      url: http://{{ .Release.Name }}-phlare:4100
+      version: 1
+      isDefault: false
+      uid: phlare
+{{- end }}
